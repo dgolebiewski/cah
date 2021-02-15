@@ -1,0 +1,10 @@
+export const ACTION_ESTABLISH_CONNECTION = 'establish_connection';
+export const ACTION_UPDATE_CLIENT = 'update_client';
+export const ACTION_GAMES_LIST_UPDATE = 'games_list_update';
+export const ACTION_CREATE_GAME = 'create_game';
+export const ACTION_JOIN_GAME = 'join_game';
+export const ACTION_UPDATE_GAME_SETTINGS = 'update_game_settings';
+export const ACTION_START_GAME = 'start_game';
+export const ACTION_GAME_STATE_UPDATE = 'game_state_update';
+export const ACTION_PLAY_CARD = 'play_card';
+export const ACTION_PICK_CARD = 'pick_card';
