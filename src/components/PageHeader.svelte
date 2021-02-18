@@ -5,11 +5,11 @@
 </script>
 
 {#if !secondary}
-<h1 class:my-10={!noMargins} class={`font-mono text-5xl font-bold uppercase text-white ${className}`}>
+<h1 class={`font-mono text-5xl font-bold uppercase text-white ${className} ${!noMargins ? 'my-10' : ''}`}>
   <slot />
 </h1>
 {:else}
-<h2 class:my-7={!noMargins} class={`font-mono text-3xl font-bold uppercase text-white ${className}`}>
+<h2 class={`font-mono text-3xl font-bold uppercase text-white ${className} ${!noMargins ? 'my-7' : ''}`}>
   <slot />
 </h2>
 {/if}

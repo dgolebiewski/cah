@@ -146,7 +146,7 @@ import NameForm from "../../components/NameForm.svelte";
         </thead>
         <tbody class="divide-y divide-white">
           {#each game.clients as client}
-          <tr class:bg-blue-500={client.winner}>
+          <tr class={`${client.winner ? 'bg-blue-500' : ''}`}>
             <td class="py-3 px-2 max-w-4xl w-56 whitespace-nowrap overflow-hidden overflow-ellipsis">{client.name || client.id}</td>
             <td class="py-3 px-2">{client.score}</td>
             <td class="py-3 px-2">{getClientLabels(client, game)}</td>
