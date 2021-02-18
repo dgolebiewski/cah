@@ -56,7 +56,7 @@ export default {
 
           this.clientInfo = {
             id: msgObject.data.client.id,
-            name: msgObject.data.client.name || msgObject.data.client.id,
+            name: msgObject.data.client.name,
           };
 
           Cookies.set('clientId', this.clientInfo.id);
@@ -76,14 +76,11 @@ export default {
         case ACTION_UPDATE_CLIENT:
           this.clientInfo = msgObject.data.client;
           break;
-        default:
-          const request = this.requests.find(r => r.id === msgObject.requestId);
-          if (!request) {
-            throw `Unknown server message ${message.data}`;
-          }
+      }
 
-          request.resolve(msgObject.data || { error: msgObject.error });
-          break;
+      const request = this.requests.find(r => r.id === msgObject.requestId);
+      if (request) {
+        request.resolve(msgObject.data || { error: msgObject.error });
       }
 
       const subscribers = this.actionSubscribers.filter(

@@ -12,6 +12,7 @@
   import Button from "../../components/Button.svelte";
   import Card from "../../components/Card.svelte";
   import Label from "../../components/Label.svelte";
+import NameForm from "../../components/NameForm.svelte";
 
   export let gameId;
 
@@ -90,8 +91,13 @@
     gameClient.pickCard(winner);
   }
 
-  onMount(async () => {
-    await gameClient.start();
+  const joinGame = async () => {
+    if(!client.name) {
+      client = gameClient.getClient();
+      if(!client.name) {
+        return;
+      }
+    }
 
     const response = await gameClient.joinGame(gameId, gameUpdate);
     if(response.error) {
@@ -100,8 +106,16 @@
     }
 
     game = response.game;
+  }
+
+  onMount(async () => {
+    await gameClient.start();
 
     client = gameClient.getClient();
+
+    if(client.name) {
+      joinGame();
+    }
   });
 </script>
 
@@ -132,8 +146,8 @@
         </thead>
         <tbody class="divide-y divide-white">
           {#each game.clients as client}
-          <tr>
-            <td class="py-3 px-2 w-52 overflow-hidden overflow-ellipsis">{client.name || client.id}</td>
+          <tr class:bg-blue-500={client.winner}>
+            <td class="py-3 px-2 max-w-4xl w-56 whitespace-nowrap overflow-hidden overflow-ellipsis">{client.name || client.id}</td>
             <td class="py-3 px-2">{client.score}</td>
             <td class="py-3 px-2">{getClientLabels(client, game)}</td>
           </tr>
@@ -159,16 +173,14 @@
   {/if}
 
   <div class="my-3 flex flex-row flex-wrap">
-    {#each game.clients as player}
-      {#if player.played}
-        <div class="border border-white p-3 rounded-lg mx-2">
-          {#each player.white as card, i}
-            <div class="w-56">
-              <Card color="white" {card} on:click={() => pick(player.id)} interactable={game.client.cardCzar && game.status === GAME_STATUS_CZAR_PICKING} selected={player.id === winner || player.id === game.lastRoundWinner} />
-            </div>
-          {/each}
-        </div>
-      {/if}
+    {#each game.table as play}
+      <div class="border border-white p-3 rounded-lg mx-2">
+        {#each play.white as card}
+          <div class="w-56">
+            <Card color="white" {card} on:click={() => pick(play.id)} interactable={game.client.cardCzar && game.status === GAME_STATUS_CZAR_PICKING} selected={play.id === winner || play.id === game.lastRoundWinner} />
+          </div>
+        {/each}
+      </div>
     {/each}
   </div>
 
@@ -180,9 +192,10 @@
     {/each}
   </div>
 
-  <pre class="text-white mt-5">{JSON.stringify(game, null, 2)}</pre>
-{/if}
-{#if error}
+  <!-- <pre class="text-white mt-5">{JSON.stringify(game, null, 2)}</pre> -->
+{:else if error}
   <PageHeader>Something went wrong</PageHeader>
   <PageHeader secondary>{error}</PageHeader>
+{:else if client && !client.name}
+  <NameForm on:submit={() => joinGame()} />
 {/if}

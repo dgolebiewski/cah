@@ -21,6 +21,7 @@ import db from '../db';
 
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import { shuffle } from '../helpers';
 
 const createOkStatusResponse = (data, requestId = null, action = null) => {
   return JSON.stringify({ status: 'Ok', requestId, action, data });
@@ -37,12 +38,28 @@ const getPublicSettings = settings => {
 };
 
 const getPublicGameData = (game, client) => {
-  const { id, host, black, status, lastRoundWinner, settings, clients } = game;
+  const {
+    id,
+    host,
+    black,
+    table,
+    status,
+    lastRoundWinner,
+    settings,
+    clients,
+  } = game;
 
   return {
     id,
     host,
     black,
+    table: table.map(t => ({
+      id: t.id,
+      white:
+        game.status !== GAME_STATUS_PLAYING
+          ? t.white
+          : t.white.map(c => ({ text: '?' })),
+    })),
     status,
     lastRoundWinner,
     settings: getPublicSettings(settings),
@@ -52,11 +69,10 @@ const getPublicGameData = (game, client) => {
       score: c.score,
       host: c.host,
       cardCzar: c.cardCzar,
-      played: !!c.white.length,
-      white:
-        game.status !== GAME_STATUS_PLAYING || c.id === client.id
-          ? c.white
-          : c.white.map(w => ({ text: '?' })),
+      played: c.played,
+      winner:
+        lastRoundWinner &&
+        !!table.find(t => t.id === lastRoundWinner && t.clientId === c.id),
     })),
     client: clients.find(c => c.id === client.id),
   };
@@ -71,13 +87,13 @@ const createClientGameData = (client, host = false) => {
     host,
     score: 0,
     cardCzar: false,
+    played: false,
     hand: [],
-    white: [],
   };
 };
 
 const dealCards = (client, white, gameSettings) => {
-  client.white = [];
+  client.played = false;
 
   if (client.hand.length >= gameSettings.whiteCards) {
     return client;
@@ -121,6 +137,7 @@ const nextTurn = game => {
     return game;
   }
 
+  game.table = [];
   game.lastRoundWinner = null;
 
   nextCzar(game);
@@ -347,6 +364,7 @@ export default {
                   ...msgObject.settings,
                 },
                 black: null,
+                table: [],
                 blackDeck: [],
                 whiteDeck: [],
                 clients: [createClientGameData(client, true)],
@@ -446,9 +464,10 @@ export default {
 
               const decks = await db.getDecksByIds(game.settings.decks);
 
-              game.blackDeck = decks
-                .reduce((black, deck) => black.concat(deck.black), [])
-                .filter(b => b.pick > 1);
+              game.blackDeck = decks.reduce(
+                (black, deck) => black.concat(deck.black),
+                [],
+              );
               game.whiteDeck = decks.reduce(
                 (white, deck) => white.concat(deck.white),
                 [],
@@ -487,7 +506,7 @@ export default {
                 throw 'Cannot play card(s): player is the card czar.';
               }
 
-              if (player.white.length > 0) {
+              if (player.played) {
                 throw 'Cannot play card(s): player already played this round.';
               }
 
@@ -498,20 +517,38 @@ export default {
                 }
               });
 
+              const play = {
+                id: uuidv4(),
+                clientId: client.id,
+                white: [],
+              };
+
               msgObject.whiteId.forEach(w => {
+                //Find the card in player's hand
                 const cardIndex = player.hand.findIndex(
                   c => '' + c._id === '' + w,
                 );
 
+                //Get it's reference
                 const card = player.hand[cardIndex];
-                player.white.push(card);
 
+                //Push it onto the stack of cards in current play
+                play.white.push(card);
+
+                //Remove the card from player's hand
                 player.hand.splice(cardIndex, 1);
+
+                player.played = true;
               });
 
+              game.table.push(play);
+
+              game.table = shuffle(game.table);
+
               if (
-                game.clients.filter(c => !c.white.length && !!c.hand.length)
-                  .length <= 1
+                !game.clients.find(
+                  c => !c.played && !c.cardCzar && !!c.hand.length,
+                )
               ) {
                 game.status = GAME_STATUS_CZAR_PICKING;
               }
@@ -541,15 +578,20 @@ export default {
                 throw 'Cannot pick card: player is not the card czar';
               }
 
-              const winner = game.clients.find(
-                c => c.id === msgObject.winnerId,
-              );
+              const pick = game.table.find(t => t.id === msgObject.winnerId);
+
+              if (!pick) {
+                throw 'Cannot pick card: these cards are not on the table.';
+              }
+
+              const winner = game.clients.find(c => c.id === pick.clientId);
+
               if (!winner) {
-                throw 'Cannot pick card: winner not in the game.';
+                throw 'Cannot pick card: winner is not in the game.';
               }
 
               winner.score++;
-              game.lastRoundWinner = winner.id;
+              game.lastRoundWinner = pick.id;
               if (winner.score >= game.settings.maxScore) {
                 game.status = GAME_STATUS_FINISHED;
               } else {
