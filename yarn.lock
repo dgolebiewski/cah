@@ -1391,7 +1391,7 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-dotenv@^8.2.0:
+dotenv@^8.0.0, dotenv@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
@@ -2421,6 +2421,13 @@ safe-buffer@5.2.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@^5.1.2:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
   integrity sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==
+
+sapper-environment@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sapper-environment/-/sapper-environment-1.0.1.tgz#2844539644e3d9c1a391442ee6ad80fd04e0d56d"
+  integrity sha512-T0O6v6edaonmCH8eP2+ex3Mv3kuZJ8cH3NrCUPLPSXKw9PWcaPh2066dPO1MMkTLB04ONBf9tBX1XOlkEECM0A==
+  dependencies:
+    dotenv "^8.0.0"
 
 sapper@^0.28.0:
   version "0.28.10"

@@ -12,7 +12,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
 
-const adress = 'localhost';
+const adress = '188.137.69.131';
 const port = 8080;
 
 export default {
