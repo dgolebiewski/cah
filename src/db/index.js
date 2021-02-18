@@ -7,6 +7,8 @@ const escapeStringRegexp = require('escape-string-regexp');
 
 const { DB_HOST, DB_USER, DB_PASS, DB_NAME } = process.env;
 
+console.log(`Connecting to the database at ${DB_HOST}`);
+
 let db = null;
 let ready = false;
 let readyListeners = [];
