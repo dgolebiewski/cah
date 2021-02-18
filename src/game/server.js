@@ -240,12 +240,12 @@ const leaveGame = client => {
 };
 
 export default {
-  start(port = 8080) {
+  start(express) {
     if (server) {
       return server;
     }
 
-    server = new WebSocket.Server({ port });
+    server = new WebSocket.Server({ server: express });
 
     server.on('connection', ws => {
       ws.on('message', async message => {

@@ -12,8 +12,10 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
 
-const adress = 'localhost';
-const port = 8080;
+const host =
+  typeof location !== 'undefined'
+    ? location.origin.replace(/^http/, 'ws').replace(/^https/, 'wss')
+    : null;
 
 export default {
   client: null,
@@ -39,7 +41,7 @@ export default {
       });
     }
 
-    this.client = new WebSocket(`ws://${adress}:${port}`);
+    this.client = new WebSocket(host);
 
     const promise = new Promise(res => {
       this.readyListeners.push(res);
