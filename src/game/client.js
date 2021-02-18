@@ -5,6 +5,7 @@ import {
   ACTION_GAME_STATE_UPDATE,
   ACTION_JOIN_GAME,
   ACTION_PICK_CARD,
+  ACTION_PING,
   ACTION_PLAY_CARD,
   ACTION_START_GAME,
   ACTION_UPDATE_CLIENT,
@@ -60,6 +61,10 @@ export default {
             id: msgObject.data.client.id,
             name: msgObject.data.client.name,
           };
+
+          setInterval(() => {
+            this.sendRequest({ timestamp: Date.now() }, ACTION_PING);
+          }, 7500);
 
           Cookies.set('clientId', this.clientInfo.id);
           this.ready = true;

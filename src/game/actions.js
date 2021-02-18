@@ -8,3 +8,4 @@ export const ACTION_START_GAME = 'start_game';
 export const ACTION_GAME_STATE_UPDATE = 'game_state_update';
 export const ACTION_PLAY_CARD = 'play_card';
 export const ACTION_PICK_CARD = 'pick_card';
+export const ACTION_PING = 'ping';

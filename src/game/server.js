@@ -16,6 +16,7 @@ import {
   ACTION_START_GAME,
   ACTION_PLAY_CARD,
   ACTION_PICK_CARD,
+  ACTION_PING,
 } from './actions';
 import db from '../db';
 
@@ -306,6 +307,9 @@ export default {
 
               response = { client: newClient };
               postResponse = () => sendGamesList(newClient);
+              break;
+            case ACTION_PING:
+              response = { timestamp: Date.now() };
               break;
             case ACTION_UPDATE_CLIENT:
               /*
